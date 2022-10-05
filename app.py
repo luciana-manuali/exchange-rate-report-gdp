@@ -83,8 +83,9 @@ colors_ = ['#E34234','#C4A484',
 # Layout
 
 app = dash.Dash(__name__)
-app.title = "Exchange Rate Report Grupo del Plata S.A."
 server = app.server
+
+app.title = "Exchange Rate Report Grupo del Plata S.A."
 
 app.layout = html.Div(
     children=[
@@ -498,83 +499,6 @@ app.layout = html.Div(
             ],
             className="page",
         ),
-        # Page 6
-        #html.Div(
-        #    [
-        #        html.Div(
-        #            [
-        #                html.Div(
-        #                    [
-        #                        html.Div(
-        #                            [
-        #                                html.Strong(
-        #                                    "Figure 5: Implicit Exchange Rates",
-        #                                ),
-        #                            ],
-        #                            style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center',
-        #                                   'color': color_1},
-        #                        ),
-        #                        html.Div(
-        #                            [
-        #                                html.Img(
-        #                                    src=app.get_asset_url(
-        #                                        "logo_.png"
-        #                                    ),
-        #                                    style={'opacity': '0.2'},
-        #                                    className='page-1a',
-        #                                ),
-        #                            ],
-        #                            style={'width': '10%', 'display': 'inline-block', 'vertical-align': 'center',
-        #                                   'text-align': 'right', 'color': 'black'},
-        #                        ),
-        #                    ],
-        #                    className="row",
-        #                ),
-        #                html.Div(
-        #                    [
-        #                        html.P(
-        #                            "",
-        #                        ),
-        #                        dcc.DatePickerRange(
-        #                            id="date-range5",
-        #                            min_date_allowed=implicit_exchange_rate.index.min().date(),
-        #                            max_date_allowed=implicit_exchange_rate.index.max().date(),
-        #                            start_date=implicit_exchange_rate.index.min().date(),
-        #                            end_date=implicit_exchange_rate.index.max().date(),
-        #                            updatemode='singledate',
-        #                        )
-        #                        ,
-        #                        dcc.Graph(id="implicit-exchange-rate",
-        #                                  config={"displayModeBar": False},
-        #                                  ),
-        #                    ],
-        #                    className="thirdPage first row",
-        #                ),
-        #                html.Div(
-        #                    [
-        #                        html.Div(
-        #                            [
-        #                                html.H1("SPACE"),
-        #                            ],
-        #                            style={'width': '95%', 'display': 'inline-block', 'vertical-align': 'center',
-        #                                   'color': 'white'},
-        #                        ),
-        #                        html.Div(
-        #                            [
-        #                                html.H6("5"),
-        #                            ],
-        #                            style={'width': '5%', 'display': 'inline-block', 'vertical-align': 'center',
-        #                                   'text-align': 'right', 'color': 'black'},
-        #                        ),
-        #                    ],
-        #                    className="row",
-        #                ),
-        #            ],
-        #            className="subpage",
-        #        )
-        #    ],
-        #    className="page",
-        #),
 
     ]
 )
@@ -935,92 +859,6 @@ def historica_perf(start_date, end_date):
     )
 
     return fig4
-
-#@app.callback(
-#    Output("implicit-exchange-rate", "figure"),
-#    [
-#        Input("date-range5", "start_date"),
-#        Input("date-range5", "end_date"), ],
-#)
-#def historica_perf(start_date, end_date):
-#    mask = (implicit_exchange_rate.index >= pd.to_datetime(start_date)) & \
-#           (implicit_exchange_rate.index <= pd.to_datetime(end_date))
-#
-#    filtered_data = implicit_exchange_rate.drop(['CPI USA','CPI ARG'], axis=1).iloc[mask]
-
-#    fig5 = go.Figure()
-#    for i, color in zip(filtered_data.columns, colors):
-#        fig5.add_trace(go.Scatter(x=filtered_data[i].index,
-#                                  y=filtered_data[i],
-#                                  mode='lines',
-#                                  connectgaps=True,
-#                                  name=i,
-#                                  line=dict(
-#                                      color=color
-#                                  )
-#                                  )
-#                       )
-#    fig5.update_layout(
-#        xaxis=dict(
-#            showgrid=True,
-#            showline=True,
-#            zeroline=True,
-#            gridcolor="lightgray",
-#            zerolinecolor="lightgray",
-#            showticklabels=True,
-#            tickformat="%m-%Y",
-#            linecolor="lightgray",
-#            tickcolor="lightgray",
-#            tickangle=-90,
-#            ticks='outside',
-#            type='date',
-#            tickfont=dict(
-#                family='Arial',
-#                size=9,
-#            ),
-#        ),
-#        yaxis=dict(
-#            showgrid=True,
-#            showline=True,
-#            showticklabels=True,
-#            zeroline=True,
-#            zerolinecolor="lightgray",
-#            gridcolor="lightgray",
-#            linecolor="lightgray",
-#            tickcolor="lightgray",
-#            titlefont=dict(
-#                family='Arial',
-#                size=9,
-#            ),
-#            tickfont=dict(
-#                family='Arial',
-#                size=9,
-#            ),
-#        ),
-#        margin=dict(
-#            r=10,
-#            t=5,
-#            b=0,
-#            l=40,
-#            pad=2,
-#        ),
-#        legend=dict(
-#            yanchor="top",
-#            y=1.3,
-#            xanchor="center",
-#            x=0.55,
-#            orientation="h",
-#            font=dict(
-#                family='Arial',
-#                size=9,
-#            ),
-#        ),
-#        height=450,
-#        showlegend=True,
-#        plot_bgcolor='rgba(0,0,0,0)',
-#    )
-
-#    return fig5
 
 if __name__ == "__main__":
     app.run_server(debug=True)

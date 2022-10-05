@@ -1,0 +1,32 @@
+ .page {
+	  position: relative;
+	  width: 360mm;
+	  height: 180mm;
+	  padding: 0mm;
+	  margin: 20mm auto;
+	  border: 1px #D3D3D3 solid;
+	  background: white;
+ }
+
+ .subpage {
+	  padding: 1cm;
+	  border: 5px #ccc solid;
+	  height: 180mm;
+ }
+
+.title {
+  float: center;
+  text-align: center;
+}
+
+ .page-1a {
+   max-width: 100%;
+   height: auto;
+ }
+
+ .paragraph {
+   max-width: 100%;
+   height: auto;
+   font-size: 14px;
+   text-align: justify;
+ }
