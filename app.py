@@ -28,10 +28,7 @@ spread = pd.DataFrame()
 spread['MEP Spread'] = ((exchange_rate['MEP']/exchange_rate['Official'])-1)*100
 spread['CCL Spread'] = ((exchange_rate['CCL']/exchange_rate['Official'])-1)*100
 
-real_exchange_rate = pd.read_excel('http://www.bcra.gob.ar/Pdfs/PublicacionesEstadisticas/ITCRMSerie.xls', header = 1, index_col = 0,
-              usecols = 'A,B,C,F').dropna().iloc[800:]
-for i, n in zip(real_exchange_rate.index, range(len(real_exchange_rate.index))):
-    real_exchange_rate = real_exchange_rate.rename(index={i: xlrd.xldate_as_datetime(i, 0)})
+wire_cost = ((exchange_rate['MEP']/ exchange_rate['CCL'])-1)*-100
 
 # Colors
 
@@ -307,7 +304,7 @@ app.layout = html.Div(
             ],
             className="page",
         ),
-        # Page 5
+        # Page 4
         html.Div(
             [
                 html.Div(
@@ -317,7 +314,7 @@ app.layout = html.Div(
                                 html.Div(
                                     [
                                         html.Strong(
-                                            "Figure 4: Real Multilateral Exchange Rate Indices ",
+                                            "Figure 3: Wire Cost",
                                         ),
                                     ],
                                     style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center',
@@ -345,15 +342,15 @@ app.layout = html.Div(
                                     "",
                                 ),
                                 dcc.DatePickerRange(
-                                    id="date-range-real-exchange-rate",
-                                    min_date_allowed=real_exchange_rate.index.min().date(),
-                                    max_date_allowed=real_exchange_rate.index.max().date(),
-                                    start_date=real_exchange_rate.index.min().date(),
-                                    end_date=real_exchange_rate.index.max().date(),
+                                    id="date-range-wire-cost",
+                                    min_date_allowed=wire_cost.index.min().date(),
+                                    max_date_allowed=wire_cost.index.max().date(),
+                                    start_date=wire_cost.index.min().date(),
+                                    end_date=wire_cost.index.max().date(),
                                     updatemode='singledate',
                                 )
                                 ,
-                                dcc.Graph(id="real-exchange-rate",
+                                dcc.Graph(id="wire-cost",
                                           config={"displayModeBar": False},
                                           ),
                             ],
@@ -370,7 +367,7 @@ app.layout = html.Div(
                                 ),
                                 html.Div(
                                     [
-                                        html.H6("4"),
+                                        html.H6("3"),
                                     ],
                                     style={'width': '5%', 'display': 'inline-block', 'vertical-align': 'center',
                                            'text-align': 'right', 'color': 'black'},
@@ -565,30 +562,29 @@ def spread_calculation(start_date, end_date):
     return fig_spread
 
 @app.callback(
-    Output("real-exchange-rate", "figure"),
+    Output("wire-cost", "figure"),
     [
-        Input("date-range-real-exchange-rate", "start_date"),
-        Input("date-range-real-exchange-rate", "end_date"), ],
+        Input("date-range-wire-cost", "start_date"),
+        Input("date-range-wire-cost", "end_date"), ],
 )
-def real_exchange_rate_calculation(start_date, end_date):
-    mask = (real_exchange_rate.index >= pd.to_datetime(start_date)) & \
-           (real_exchange_rate.index <= pd.to_datetime(end_date))
+def wire_cost_calculation(start_date, end_date):
+    mask = (wire_cost.index >= pd.to_datetime(start_date)) & \
+           (wire_cost.index <= pd.to_datetime(end_date))
 
-    filtered_data = real_exchange_rate.iloc[mask]
+    filtered_data = wire_cost.iloc[mask]
 
-    fig_real_exchange_rate = go.Figure()
-    for i, color in zip(filtered_data.columns, colors):
-        fig_real_exchange_rate.add_trace(go.Scatter(x=filtered_data[i].index,
-                                  y=filtered_data[i],
-                                  mode='lines',
-                                  connectgaps=True,
-                                  name=i,
-                                  line=dict(
-                                      color=color
-                                  )
-                                  )
-                       )
-    fig_real_exchange_rate.update_layout(
+    fig_wire_cost = go.Figure()
+    fig_wire_cost.add_trace(go.Scatter(x=filtered_data.index,
+                              y=filtered_data,
+                              mode='lines',
+                              connectgaps=True,
+                              name = "Wire Cost",
+                              line=dict(
+                                  color = colors[1],
+                              ),
+                              ),
+                   )
+    fig_wire_cost.update_layout(
         xaxis=dict(
             showgrid=True,
             showline=True,
@@ -617,6 +613,7 @@ def real_exchange_rate_calculation(start_date, end_date):
             gridcolor="lightgray",
             linecolor="lightgray",
             tickcolor="lightgray",
+            title= 'Wire Cost (%)',
             titlefont=dict(
                 family='Arial',
                 size=12,
@@ -650,7 +647,7 @@ def real_exchange_rate_calculation(start_date, end_date):
         showlegend=True,
         plot_bgcolor='rgba(0,0,0,0)',
     )
-    return fig_real_exchange_rate
+    return fig_wire_cost
 
 if __name__ == "__main__":
     app.run_server(debug=True)
