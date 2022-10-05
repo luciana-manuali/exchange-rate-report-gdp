@@ -193,7 +193,7 @@ app.layout = html.Div(
                                     "",
                                 ),
                                 dcc.DatePickerRange(
-                                    id="date-range",
+                                    id="date-range-exchange-rate",
                                     min_date_allowed=exchange_rate.index.min().date(),
                                     max_date_allowed=exchange_rate.index.max().date(),
                                     start_date=exchange_rate.index.min().date(),
@@ -268,7 +268,7 @@ app.layout = html.Div(
                                     "",
                                 ),
                                 dcc.DatePickerRange(
-                                    id="date-range2",
+                                    id="date-range-spread",
                                     min_date_allowed=spread.index.min().date(),
                                     max_date_allowed=spread.index.max().date(),
                                     start_date=spread.index.min().date(),
@@ -317,7 +317,7 @@ app.layout = html.Div(
                                 html.Div(
                                     [
                                         html.Strong(
-                                            "Figure 4: Real Multilateral Exchange Rate Indices ",
+                                            "Figure 3: Real Multilateral Exchange Rate Indices ",
                                         ),
                                     ],
                                     style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center',
@@ -345,7 +345,7 @@ app.layout = html.Div(
                                     "",
                                 ),
                                 dcc.DatePickerRange(
-                                    id="date-range4",
+                                    id="date-range-real-exchange-rate",
                                     min_date_allowed=real_exchange_rate.index.min().date(),
                                     max_date_allowed=real_exchange_rate.index.max().date(),
                                     start_date=real_exchange_rate.index.min().date(),
@@ -391,18 +391,18 @@ app.layout = html.Div(
 @app.callback(
     Output("exchange-rate", "figure"),
     [
-        Input("date-range", "start_date"),
-        Input("date-range", "end_date"), ],
+        Input("date-range-exchange-rate", "start_date"),
+        Input("date-range-exchange-rate", "end_date"), ],
 )
-def historica_perf(start_date, end_date):
+def historical_performance(start_date, end_date):
     mask = (exchange_rate.index >= pd.to_datetime(start_date)) & \
            (exchange_rate.index <= pd.to_datetime(end_date))
 
     filtered_data = exchange_rate.iloc[mask]
 
-    fig1 = go.Figure()
+    fig_exchange_rate = go.Figure()
     for i, color in zip(filtered_data.columns, colors):
-        fig1.add_trace(go.Scatter(x=filtered_data[i].index,
+        fig_exchange_rate.add_trace(go.Scatter(x=filtered_data[i].index,
                                   y=filtered_data[i],
                                   mode='lines',
                                   connectgaps=True,
@@ -412,7 +412,7 @@ def historica_perf(start_date, end_date):
                                   )
                                   )
                        )
-    fig1.update_layout(
+    fig_exchange_rate.update_layout(
         xaxis=dict(
             showgrid=True,
             showline=True,
@@ -474,24 +474,23 @@ def historica_perf(start_date, end_date):
         showlegend=True,
         plot_bgcolor='rgba(0,0,0,0)',
     )
-
-    return fig1
+    return fig_exchange_rate
 
 @app.callback(
     Output("spread", "figure"),
     [
-        Input("date-range2", "start_date"),
-        Input("date-range2", "end_date"), ],
+        Input("date-range-spread", "start_date"),
+        Input("date-range-spread", "end_date"), ],
 )
-def historica_perf(start_date, end_date):
+def spread_calculation(start_date, end_date):
     mask = (spread.index >= pd.to_datetime(start_date)) & \
            (spread.index <= pd.to_datetime(end_date))
 
     filtered_data = spread.iloc[mask]
 
-    fig2 = go.Figure()
+    fig_spread = go.Figure()
     for i, color in zip(filtered_data.columns, colors):
-        fig2.add_trace(go.Scatter(x=filtered_data[i].index,
+        fig_spread.add_trace(go.Scatter(x=filtered_data[i].index,
                                   y=filtered_data[i],
                                   mode='lines',
                                   connectgaps=True,
@@ -501,7 +500,7 @@ def historica_perf(start_date, end_date):
                                   )
                                   )
                        )
-    fig2.update_layout(
+    fig_spread.update_layout(
         xaxis=dict(
             showgrid=True,
             showline=True,
@@ -563,33 +562,33 @@ def historica_perf(start_date, end_date):
         showlegend=True,
         plot_bgcolor='rgba(0,0,0,0)',
     )
-
-    return fig2
+    return fig_spread
 
 @app.callback(
-    Output("wire-cost", "figure"),
+    Output("real-exchange-rate", "figure"),
     [
-        Input("date-range3", "start_date"),
-        Input("date-range3", "end_date"), ],
+        Input("date-range4", "start_date"),
+        Input("date-range4", "end_date"), ],
 )
-def historica_perf(start_date, end_date):
-    mask = (wire_cost.index >= pd.to_datetime(start_date)) & \
-           (wire_cost.index <= pd.to_datetime(end_date))
+def real_exchange_rate_calculation(start_date, end_date):
+    mask = (real_exchange_rate.index >= pd.to_datetime(start_date)) & \
+           (real_exchange_rate.index <= pd.to_datetime(end_date))
 
-    filtered_data = wire_cost.iloc[mask]
+    filtered_data = real_exchange_rate.iloc[mask]
 
-    fig3 = go.Figure()
-    fig3.add_trace(go.Scatter(x=filtered_data.index,
-                              y=filtered_data,
-                              mode='lines',
-                              connectgaps=True,
-                              name = "Wire Cost",
-                              line=dict(
-                                  color = colors[1],
-                              ),
-                              ),
-                   )
-    fig3.update_layout(
+    fig_real_exchange_rate = go.Figure()
+    for i, color in zip(filtered_data.columns, colors):
+        fig_real_exchange_rate.add_trace(go.Scatter(x=filtered_data[i].index,
+                                  y=filtered_data[i],
+                                  mode='lines',
+                                  connectgaps=True,
+                                  name=i,
+                                  line=dict(
+                                      color=color
+                                  )
+                                  )
+                       )
+    fig_real_exchange_rate.update_layout(
         xaxis=dict(
             showgrid=True,
             showline=True,
@@ -618,7 +617,6 @@ def historica_perf(start_date, end_date):
             gridcolor="lightgray",
             linecolor="lightgray",
             tickcolor="lightgray",
-            title= 'Wire Cost (%)',
             titlefont=dict(
                 family='Arial',
                 size=12,
@@ -652,8 +650,7 @@ def historica_perf(start_date, end_date):
         showlegend=True,
         plot_bgcolor='rgba(0,0,0,0)',
     )
-
-    return fig3
+    return fig_real_exchange_rate
 
 if __name__ == "__main__":
     app.run_server(debug=True)
