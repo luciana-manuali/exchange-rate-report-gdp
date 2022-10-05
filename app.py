@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 import pandas as pd
 from dash.dependencies import Output, Input
 import datetime as dt
+import xlrd
 
 # Path
 BASE_PATH = pathlib.Path(__file__).parent.resolve()
@@ -26,6 +27,11 @@ exchange_rate.index = pd.to_datetime(exchange_rate.index)
 spread = pd.DataFrame()
 spread['MEP Spread'] = ((exchange_rate['MEP']/exchange_rate['Official'])-1)*100
 spread['CCL Spread'] = ((exchange_rate['CCL']/exchange_rate['Official'])-1)*100
+
+real_exchange_rate = pd.read_excel('http://www.bcra.gob.ar/Pdfs/PublicacionesEstadisticas/ITCRMSerie.xls', header = 1, index_col = 0,
+              usecols = 'A,B,C,F').dropna().iloc[800:]
+for i, n in zip(real_exchange_rate.index, range(len(real_exchange_rate.index))):
+    real_exchange_rate = real_exchange_rate.rename(index={i: xlrd.xldate_as_datetime(i, 0)})
 
 # Colors
 
@@ -301,6 +307,83 @@ app.layout = html.Div(
             ],
             className="page",
         ),
+        # Page 4
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.Strong(
+                                            "Figure 4: Real Multilateral Exchange Rate Indices ",
+                                        ),
+                                    ],
+                                    style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center',
+                                           'color': color_1},
+                                ),
+                                html.Div(
+                                    [
+                                        html.Img(
+                                            src=app.get_asset_url(
+                                                "logo_.png"
+                                            ),
+                                            style={'opacity': '0.2'},
+                                            className='page-1a',
+                                        ),
+                                    ],
+                                    style={'width': '10%', 'display': 'inline-block', 'vertical-align': 'center',
+                                           'text-align': 'right', 'color': 'black'},
+                                ),
+                            ],
+                            className="row",
+                        ),
+                        html.Div(
+                            [
+                                html.P(
+                                    "",
+                                ),
+                                dcc.DatePickerRange(
+                                    id="date-range4",
+                                    min_date_allowed=real_exchange_rate.index.min().date(),
+                                    max_date_allowed=real_exchange_rate.index.max().date(),
+                                    start_date=real_exchange_rate.index.min().date(),
+                                    end_date=real_exchange_rate.index.max().date(),
+                                    updatemode='singledate',
+                                )
+                                ,
+                                dcc.Graph(id="real-exchange-rate",
+                                          config={"displayModeBar": False},
+                                          ),
+                            ],
+                            className="thirdPage first row",
+                        ),
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.H1("SPACE"),
+                                    ],
+                                    style={'width': '95%', 'display': 'inline-block', 'vertical-align': 'center',
+                                           'color': 'white'},
+                                ),
+                                html.Div(
+                                    [
+                                        html.H6("4"),
+                                    ],
+                                    style={'width': '5%', 'display': 'inline-block', 'vertical-align': 'center',
+                                           'text-align': 'right', 'color': 'black'},
+                                ),
+                            ],
+                            className="row",
+                        ),
+                    ],
+                    className="subpage",
+                )
+            ],
+            className="page",
+        ),
     ]
 )
 
@@ -482,6 +565,95 @@ def historica_perf(start_date, end_date):
     )
 
     return fig2
+
+@app.callback(
+    Output("wire-cost", "figure"),
+    [
+        Input("date-range3", "start_date"),
+        Input("date-range3", "end_date"), ],
+)
+def historica_perf(start_date, end_date):
+    mask = (wire_cost.index >= pd.to_datetime(start_date)) & \
+           (wire_cost.index <= pd.to_datetime(end_date))
+
+    filtered_data = wire_cost.iloc[mask]
+
+    fig3 = go.Figure()
+    fig3.add_trace(go.Scatter(x=filtered_data.index,
+                              y=filtered_data,
+                              mode='lines',
+                              connectgaps=True,
+                              name = "Wire Cost",
+                              line=dict(
+                                  color = colors[1],
+                              ),
+                              ),
+                   )
+    fig3.update_layout(
+        xaxis=dict(
+            showgrid=True,
+            showline=True,
+            zeroline=True,
+            gridcolor="lightgray",
+            zerolinecolor="lightgray",
+            showticklabels=True,
+            tickformat="%m-%Y",
+            linecolor="lightgray",
+            tickcolor="lightgray",
+            tickangle=-90,
+            ticks='outside',
+            type='date',
+            tickfont=dict(
+                family='Arial',
+                size=12,
+            ),
+            mirror=True,
+        ),
+        yaxis=dict(
+            showgrid=True,
+            showline=True,
+            showticklabels=True,
+            zeroline=True,
+            zerolinecolor="lightgray",
+            gridcolor="lightgray",
+            linecolor="lightgray",
+            tickcolor="lightgray",
+            title= 'Wire Cost (%)',
+            titlefont=dict(
+                family='Arial',
+                size=12,
+            ),
+            tickfont=dict(
+                family='Arial',
+                size=12,
+            ),
+            mirror=True,
+            side='right',
+        ),
+        margin=dict(
+            r=10,
+            t=5,
+            b=0,
+            l=40,
+            pad=2,
+        ),
+        legend=dict(
+            yanchor="top",
+            y=1.3,
+            xanchor="center",
+            x=0.55,
+            orientation="h",
+            font=dict(
+                family='Arial',
+                size=12,
+            ),
+        ),
+        height=450,
+        showlegend=True,
+        plot_bgcolor='rgba(0,0,0,0)',
+    )
+
+    return fig3
 
 if __name__ == "__main__":
     app.run_server(debug=True)
