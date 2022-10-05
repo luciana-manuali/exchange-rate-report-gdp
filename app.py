@@ -307,7 +307,7 @@ app.layout = html.Div(
             ],
             className="page",
         ),
-        # Page 4
+        # Page 5
         html.Div(
             [
                 html.Div(
@@ -317,7 +317,7 @@ app.layout = html.Div(
                                 html.Div(
                                     [
                                         html.Strong(
-                                            "Figure 3: Real Multilateral Exchange Rate Indices ",
+                                            "Figure 4: Real Multilateral Exchange Rate Indices ",
                                         ),
                                     ],
                                     style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center',
@@ -567,8 +567,8 @@ def spread_calculation(start_date, end_date):
 @app.callback(
     Output("real-exchange-rate", "figure"),
     [
-        Input("date-range4", "start_date"),
-        Input("date-range4", "end_date"), ],
+        Input("date-range-real-exchange-rate", "start_date"),
+        Input("date-range-real-exchange-rate", "end_date"), ],
 )
 def real_exchange_rate_calculation(start_date, end_date):
     mask = (real_exchange_rate.index >= pd.to_datetime(start_date)) & \
