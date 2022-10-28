@@ -8,20 +8,13 @@ from dash.dependencies import Output, Input
 import datetime as dt
 import xlrd
 
-# Path
-BASE_PATH = pathlib.Path(__file__).parent.resolve()
-DATA_PATH = BASE_PATH.joinpath("Data").resolve()
-
 # Data
-exchange_rate = pd.read_excel(DATA_PATH.joinpath("Exchange Rate.xlsm"), engine='openpyxl')
-
-# Variables
 
 title = 'Exchange Rate Report'
 now = dt.datetime.now()
 
-exchange_rate = exchange_rate.round(2)
-exchange_rate.set_index(['Date'],inplace=True)
+exchange_rate = pd.read_csv("exchange_rates.csv")
+exchange_rate = exchange_rate.set_index("Date")
 exchange_rate.index = pd.to_datetime(exchange_rate.index)
 
 spread = pd.DataFrame()
@@ -30,14 +23,17 @@ spread['CCL Spread'] = ((exchange_rate['CCL']/exchange_rate['Official'])-1)*100
 
 wire_cost = ((exchange_rate['MEP']/ exchange_rate['CCL'])-1)*-100
 
+real_exchange_rate = pd.read_csv("real_exchange_rates.csv")
+real_exchange_rate = real_exchange_rate.set_index("Date")
+real_exchange_rate.index = pd.to_datetime(real_exchange_rate.index)
+
 # Colors
 
-color_1 = '#641E16'
-
+title_color = '#A42A04'
+color = '#A42A04'
 colors = ['#000000','#E34234','#C4A484',
-          '#708090','#D3D3D3','#36454F','#7C3030','#C04000','#C19A6B','#C41E3A','#CC5500',
-          '#A42A04','#E3735E','#818589','#E5E4E2','#EE4B2B','#EADDCA',
-          '#FF0000','#C0C0C0']
+          '#818589','#D3D3D3', '#7C3030','#C04000','#C19A6B','#C41E3A','#CC5500',
+          '#A42A04','#E3735E','#E5E4E2','#EADDCA','#C0C0C0']
 
 # Layout
 
@@ -162,11 +158,11 @@ app.layout = html.Div(
                            [
                                 html.Div(
                                     [
-                                        html.Strong(
+                                        html.P(
                                             "Figure 1: Exchange Rates",
                                         ),
                                     ],
-                                    style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center', 'color': color_1},
+                                    style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center', 'color': title_color,'fontSize': '18px'},
                                 ),
                                 html.Div(
                                     [
@@ -236,12 +232,11 @@ app.layout = html.Div(
                             [
                                 html.Div(
                                     [
-                                        html.Strong(
+                                        html.P(
                                             "Figure 2: MEP Spread and CCL Spread",
                                         ),
                                     ],
-                                    style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center',
-                                           'color': color_1},
+                                    style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center', 'color': title_color,'fontSize': '18px'},
                                 ),
                                 html.Div(
                                     [
@@ -313,12 +308,11 @@ app.layout = html.Div(
                             [
                                 html.Div(
                                     [
-                                        html.Strong(
+                                        html.P(
                                             "Figure 3: Wire Cost",
                                         ),
                                     ],
-                                    style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center',
-                                           'color': color_1},
+                                    style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center', 'color': title_color,'fontSize': '18px'},
                                 ),
                                 html.Div(
                                     [
@@ -368,6 +362,82 @@ app.layout = html.Div(
                                 html.Div(
                                     [
                                         html.H6("3"),
+                                    ],
+                                    style={'width': '5%', 'display': 'inline-block', 'vertical-align': 'center',
+                                           'text-align': 'right', 'color': 'black'},
+                                ),
+                            ],
+                            className="row",
+                        ),
+                    ],
+                    className="subpage",
+                )
+            ],
+            className="page",
+        ),
+        # Page
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.P(
+                                            "Figure 4: Real Exchange Rates",
+                                        ),
+                                    ],
+                                    style={'width': '90%', 'display': 'inline-block', 'vertical-align': 'center', 'color': title_color,'fontSize': '18px'},
+                                ),
+                                html.Div(
+                                    [
+                                        html.Img(
+                                            src=app.get_asset_url(
+                                                "logo_.png"
+                                            ),
+                                            style={'opacity': '0.2'},
+                                            className='page-1a',
+                                        ),
+                                    ],
+                                    style={'width': '10%', 'display': 'inline-block', 'vertical-align': 'center',
+                                           'text-align': 'right', 'color': 'black'},
+                                ),
+                            ],
+                            className="row",
+                        ),
+                        html.Div(
+                            [
+                                html.P(
+                                    "",
+                                ),
+                                dcc.DatePickerRange(
+                                    id="date-range-real-exchange-rate",
+                                    min_date_allowed=real_exchange_rate.index.min().date(),
+                                    max_date_allowed=real_exchange_rate.index.max().date(),
+                                    start_date=real_exchange_rate.index.min().date(),
+                                    end_date=real_exchange_rate.index.max().date(),
+                                    updatemode='singledate',
+                                )
+                                ,
+                                dcc.Graph(id="real-exchange-rate",
+                                          config={"displayModeBar": False},
+                                          ),
+                            ],
+                            className="thirdPage first row",
+                        ),
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.H1("SPACE"),
+                                    ],
+                                    style={'width': '95%', 'display': 'inline-block', 'vertical-align': 'center',
+                                           'color': 'white'},
+                                ),
+                                html.Div(
+                                    [
+                                        html.H6("4"),
                                     ],
                                     style={'width': '5%', 'display': 'inline-block', 'vertical-align': 'center',
                                            'text-align': 'right', 'color': 'black'},
@@ -438,6 +508,7 @@ def historical_performance(start_date, end_date):
             gridcolor="lightgray",
             linecolor="lightgray",
             tickcolor="lightgray",
+            title='AR($)',
             titlefont=dict(
                 family='Arial',
                 size=12,
@@ -458,7 +529,7 @@ def historical_performance(start_date, end_date):
         ),
         legend=dict(
             yanchor="top",
-            y=1.3,
+            y=1.1,
             xanchor="center",
             x=0.55,
             orientation="h",
@@ -546,7 +617,7 @@ def spread_calculation(start_date, end_date):
         ),
         legend=dict(
             yanchor="top",
-            y=1.3,
+            y=1.1,
             xanchor="center",
             x=0.55,
             orientation="h",
@@ -580,7 +651,7 @@ def wire_cost_calculation(start_date, end_date):
                               connectgaps=True,
                               name = "Wire Cost",
                               line=dict(
-                                  color = colors[1],
+                                  color = color,
                               ),
                               ),
                    )
@@ -634,7 +705,7 @@ def wire_cost_calculation(start_date, end_date):
         ),
         legend=dict(
             yanchor="top",
-            y=1.3,
+            y=1.1,
             xanchor="center",
             x=0.55,
             orientation="h",
@@ -648,6 +719,95 @@ def wire_cost_calculation(start_date, end_date):
         plot_bgcolor='rgba(0,0,0,0)',
     )
     return fig_wire_cost
+
+@app.callback(
+    Output("real-exchange-rate", "figure"),
+    [
+        Input("date-range-real-exchange-rate", "start_date"),
+        Input("date-range-real-exchange-rate", "end_date"), ],
+)
+def historical_performance(start_date, end_date):
+    mask = (real_exchange_rate.index >= pd.to_datetime(start_date)) & \
+           (real_exchange_rate.index <= pd.to_datetime(end_date))
+
+    filtered_data = real_exchange_rate.iloc[mask]
+
+    fig_real_exchange_rate = go.Figure()
+    for i, color in zip(filtered_data.columns, colors):
+        fig_real_exchange_rate.add_trace(go.Scatter(x=filtered_data[i].index,
+                                  y=filtered_data[i],
+                                  mode='lines',
+                                  connectgaps=True,
+                                  name=i,
+                                  line=dict(
+                                      color=color
+                                  )
+                                  )
+                       )
+    fig_real_exchange_rate.update_layout(
+        xaxis=dict(
+            showgrid=True,
+            showline=True,
+            zeroline=True,
+            gridcolor="lightgray",
+            zerolinecolor="lightgray",
+            showticklabels=True,
+            tickformat="%m-%Y",
+            linecolor="lightgray",
+            tickcolor="lightgray",
+            tickangle=-90,
+            ticks='outside',
+            type='date',
+            tickfont=dict(
+                family='Arial',
+                size=12,
+            ),
+            mirror=True,
+        ),
+        yaxis=dict(
+            showgrid=True,
+            showline=True,
+            showticklabels=True,
+            zeroline=True,
+            zerolinecolor="lightgray",
+            gridcolor="lightgray",
+            linecolor="lightgray",
+            tickcolor="lightgray",
+            title='AR($)',
+            titlefont=dict(
+                family='Arial',
+                size=12,
+            ),
+            tickfont=dict(
+                family='Arial',
+                size=12,
+            ),
+            mirror= True,
+            side='right',
+        ),
+        margin=dict(
+            r=10,
+            t=5,
+            b=0,
+            l=40,
+            pad=2,
+        ),
+        legend=dict(
+            yanchor="top",
+            y=1.1,
+            xanchor="center",
+            x=0.55,
+            orientation="h",
+            font=dict(
+                family='Arial',
+                size=12,
+            ),
+        ),
+        height=450,
+        showlegend=True,
+        plot_bgcolor='rgba(0,0,0,0)',
+    )
+    return fig_real_exchange_rate
 
 if __name__ == "__main__":
     app.run_server(debug=True)
