@@ -21,7 +21,7 @@ spread = pd.DataFrame()
 spread['MEP Spread'] = ((exchange_rate['MEP']/exchange_rate['Official'])-1)*100
 spread['CCL Spread'] = ((exchange_rate['CCL']/exchange_rate['Official'])-1)*100
 
-wire_cost = ((exchange_rate['MEP']/ exchange_rate['CCL'])-1)*-100
+wire_cost = ((exchange_rate['MEP']/ exchange_rate['CCL'])-1)*100
 
 real_exchange_rate = pd.read_csv("real_exchange_rates.csv")
 real_exchange_rate = real_exchange_rate.set_index("Date")
